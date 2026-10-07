@@ -123,6 +123,12 @@
               <li><b>24/96</b><span>lossless</span></li>
               <li><b>0</b><span>ads, ever</span></li>
             </ul>
+            <button class="sky-chip" id="sky-chip" type="button" aria-describedby="sky-hint">
+              <span class="sky-chip-icon" aria-hidden="true"></span>
+              <span class="sky-chip-text"><span id="sky-mode">Live sky</span> <span id="sky-time"></span> <span class="sky-chip-sep" aria-hidden="true">·</span> <span id="sky-name">Daytime</span></span>
+              <span class="sky-chip-cycle" aria-hidden="true">↻</span>
+            </button>
+            <span class="sr-only" id="sky-hint">The sky follows your local time. Press to preview the next sky.</span>
           </div>
 
           <div class="hero-stage" id="player">
@@ -218,17 +224,17 @@
                 <span class="orb-icon" aria-hidden="true"><svg><use href="#i-eq"/></svg></span>
                 <div>
                   <h3>Five-band graphic EQ</h3>
-                  <p>Pick a preset and watch the sliders move. Aqua+ saves your own curves.</p>
+                  <p>Press play up top, then switch presets and hear the difference. Aqua+ saves your own curves.</p>
                 </div>
               </div>
               <div class="eq-wrap">
                 <div class="eq" aria-hidden="true">
                   <div class="eq-scale"><span>+12 dB</span><span>0</span><span>−12 dB</span></div>
-                  <div class="band" style="--l: var(--l1)"><div class="track"><div class="fill"></div><div class="knob"></div></div><span>60 Hz</span></div>
-                  <div class="band" style="--l: var(--l2)"><div class="track"><div class="fill"></div><div class="knob"></div></div><span>230 Hz</span></div>
-                  <div class="band" style="--l: var(--l3)"><div class="track"><div class="fill"></div><div class="knob"></div></div><span>910 Hz</span></div>
-                  <div class="band" style="--l: var(--l4)"><div class="track"><div class="fill"></div><div class="knob"></div></div><span>3.6 kHz</span></div>
-                  <div class="band" style="--l: var(--l5)"><div class="track"><div class="fill"></div><div class="knob"></div></div><span>14 kHz</span></div>
+                  <div class="band" style="--l: var(--l1)"><div class="track"><div class="fill"></div><div class="knob"></div></div><span>60 Hz</span><span class="db">+10 dB</span></div>
+                  <div class="band" style="--l: var(--l2)"><div class="track"><div class="fill"></div><div class="knob"></div></div><span>230 Hz</span><span class="db">+7 dB</span></div>
+                  <div class="band" style="--l: var(--l3)"><div class="track"><div class="fill"></div><div class="knob"></div></div><span>910 Hz</span><span class="db">0 dB</span></div>
+                  <div class="band" style="--l: var(--l4)"><div class="track"><div class="fill"></div><div class="knob"></div></div><span>3.6 kHz</span><span class="db">−1 dB</span></div>
+                  <div class="band" style="--l: var(--l5)"><div class="track"><div class="fill"></div><div class="knob"></div></div><span>14 kHz</span><span class="db">0 dB</span></div>
                 </div>
                 <fieldset class="presets">
                   <legend>EQ preset</legend>
@@ -288,7 +294,7 @@
                 <span class="orb-icon" aria-hidden="true"><svg><use href="#i-aurora"/></svg></span>
                 <div>
                   <h3>Aurora visualizer</h3>
-                  <p>Six presets, from Bubbles to Deep Sea. Press play up top to set it moving.</p>
+                  <p>Six presets, from Bubbles to Deep Sea. It reacts to whatever is playing up top.</p>
                 </div>
               </div>
               <div class="viz-stage" aria-hidden="true">
@@ -388,6 +394,9 @@
     </main>
   </div>
 
+  <div class="toasts" id="toasts" role="status" aria-live="polite"></div>
+
+  <script src="assets/js/music.js"></script>
   <script src="assets/js/main.js"></script>
 </body>
 </html>

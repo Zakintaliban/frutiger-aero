@@ -16,7 +16,11 @@ python3 -m http.server 8000
 
 ## What's interactive
 
-- **Player:** play/pause, previous/next, seek. It's a silent simulation; the disc spins and the LCD visualizer moves while it "plays".
+- **Player with real sound:** four original loops generated live with the Web Audio API (no audio files): chillout bells, chiptune, ambient, and Y2K pop. The disc spins, and both visualizers read the actual audio through an `AnalyserNode`.
+- **Working EQ:** the presets drive five real filters (60 Hz · 230 Hz · 910 Hz · 3.6 kHz · 14 kHz), and the dB readouts update to match.
+- **MSN-style notifications:** "has just signed in", now playing, EQ changes and bubble milestones, with a two-note chime once audio is on.
+- **Live sky:** the hero sky follows your local time (dawn, daytime, golden hour, night) and fades between phases. Press the *Live sky* chip to preview the others.
+- **Koi:** they swim below the waterline, pass behind the frosted glass, and scatter from your cursor or tap.
 - **Skins:** Aqua / Meadow / Aurora / Bubblegum recolor the whole page (pure CSS via `:has()`).
 - **Day / Night:** the toggle switches between sky and aurora themes. It follows your system setting by default.
 - **EQ presets:** move the five-band sliders (pure CSS).
@@ -29,7 +33,8 @@ python3 -m http.server 8000
 |---|---|
 | `index.html` | Markup |
 | `assets/css/style.css` | Design tokens (day / night / skins), materials, layout, motion |
-| `assets/js/main.js` | Bubbles canvas, theme toggle, skins memory, player simulation |
+| `assets/js/music.js` | Web Audio synth: instruments, the four tracks, EQ chain, analyser |
+| `assets/js/main.js` | Bubbles + koi canvas, toasts, theme, live sky, skins, player wiring |
 | `docs/moodboard.md` | Research, palette, type, effect recipes and sources |
 
 AeroWave, its artists and its tracks are fictional.

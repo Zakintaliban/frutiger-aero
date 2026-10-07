@@ -5,6 +5,16 @@
    frosted-glass panels. Bubbles rise through both.
    ===================================================================== */
 
+/* Registered so sky colors can transition between times of day and themes */
+@property --sky-1 { syntax: "<color>"; inherits: true; initial-value: #3d8fe0; }
+@property --sky-2 { syntax: "<color>"; inherits: true; initial-value: #7cc6f2; }
+@property --sky-3 { syntax: "<color>"; inherits: true; initial-value: #cdeefc; }
+@property --sky-4 { syntax: "<color>"; inherits: true; initial-value: #f1fbff; }
+@property --sea-0 { syntax: "<color>"; inherits: true; initial-value: #8ae6f5; }
+@property --sun { syntax: "<color>"; inherits: true; initial-value: #fffbe6; }
+@property --sun-glow { syntax: "<color>"; inherits: true; initial-value: rgb(255 246 200 / 0.75); }
+@property --cloud { syntax: "<color>"; inherits: true; initial-value: rgb(255 255 255 / 0.92); }
+
 :root {
   /* ---------- Type ---------- */
   --font-display: "Unbounded", "Arial Rounded MT Bold", "Trebuchet MS", sans-serif;
@@ -54,6 +64,11 @@
 
   --sun: #fffbe6;
   --sun-glow: rgb(255 246 200 / 0.75);
+  --sun-top: clamp(70px, 9vw, 110px);
+  --sun-right: 11%;
+  --sun-size: clamp(70px, 9vw, 120px);
+  --koi-alpha: 0.95;
+  --koi-shadow: rgb(0 40 80 / 0.14);
   --flare-a: rgb(190 255 160 / 0.35);
   --flare-b: rgb(140 220 255 / 0.4);
   --flare-c: rgb(255 190 240 / 0.3);
@@ -157,6 +172,59 @@
   color-scheme: light;
 }
 
+/* ---------- Live sky phases · Day theme ---------- */
+:root[data-sky="dawn"] {
+  --sky-1: oklch(62% 0.1 262);
+  --sky-2: oklch(79% 0.08 305);
+  --sky-3: oklch(88% 0.07 15);
+  --sky-4: oklch(94% 0.06 65);
+  --sea-0: #f6d3e4;
+  --sun: #fff3dc;
+  --sun-glow: rgb(255 196 170 / 0.75);
+  --cloud: rgb(255 238 242 / 0.92);
+  --ribbon-1: rgb(255 236 244 / 0.55);
+  --ribbon-2: rgb(255 214 200 / 0.45);
+  --flare-alpha: 0;
+  --sun-top: 60%;
+  --sun-right: 40%;
+  --sun-size: clamp(90px, 11vw, 150px);
+}
+
+:root[data-sky="sunset"] {
+  --sky-1: oklch(55% 0.13 268);
+  --sky-2: oklch(71% 0.13 335);
+  --sky-3: oklch(82% 0.13 50);
+  --sky-4: oklch(92% 0.1 85);
+  --sea-0: #ffcf9f;
+  --sun: #fff1c2;
+  --sun-glow: rgb(255 160 80 / 0.8);
+  --cloud: rgb(255 222 205 / 0.92);
+  --ribbon-1: rgb(255 225 205 / 0.55);
+  --ribbon-2: rgb(255 180 210 / 0.45);
+  --flare-alpha: 0;
+  --sun-top: 62%;
+  --sun-right: 4%;
+  --sun-size: clamp(110px, 13vw, 180px);
+}
+
+:root[data-sky="night"] {
+  --sky-1: oklch(48% 0.12 276);
+  --sky-2: oklch(63% 0.12 292);
+  --sky-3: oklch(76% 0.09 320);
+  --sky-4: oklch(87% 0.06 340);
+  --sea-0: #a9bdf2;
+  --sun: #f5f3ff;
+  --sun-glow: rgb(210 205 255 / 0.5);
+  --cloud: rgb(225 220 255 / 0.55);
+  --ribbon-1: rgb(225 215 255 / 0.5);
+  --ribbon-2: rgb(190 225 255 / 0.4);
+  --star-alpha: 0.7;
+  --flare-alpha: 0;
+  --sun-top: clamp(60px, 7vw, 90px);
+  --sun-right: 18%;
+  --sun-size: clamp(50px, 6vw, 80px);
+}
+
 /* ---------- Color · Night (aurora) ---------- */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
@@ -186,6 +254,11 @@
 
     --sun: #eef6ff;
     --sun-glow: rgb(150 205 255 / 0.32);
+    --sun-top: clamp(60px, 7vw, 96px);
+    --sun-right: 14%;
+    --sun-size: clamp(60px, 7vw, 96px);
+    --koi-alpha: 0.86;
+    --koi-shadow: rgb(0 0 0 / 0.3);
     --flare-alpha: 0;
     --cloud: rgb(150 190 255 / 0.1);
     --cloud-alpha: 0.6;
@@ -282,6 +355,11 @@
 
   --sun: #eef6ff;
   --sun-glow: rgb(150 205 255 / 0.32);
+  --sun-top: clamp(60px, 7vw, 96px);
+  --sun-right: 14%;
+  --sun-size: clamp(60px, 7vw, 96px);
+  --koi-alpha: 0.86;
+  --koi-shadow: rgb(0 0 0 / 0.3);
   --flare-alpha: 0;
   --cloud: rgb(150 190 255 / 0.1);
   --cloud-alpha: 0.6;
@@ -348,6 +426,32 @@
   --toggle-icon: #cfe9ff;
 
   color-scheme: dark;
+}
+
+/* ---------- Live sky phases · Night theme (horizon glow only) ---------- */
+@media (prefers-color-scheme: dark) {
+  :root[data-sky="dawn"]:not([data-theme="light"]) {
+    --sky-3: oklch(30% 0.08 320);
+    --sky-4: oklch(46% 0.11 15);
+    --sea-0: #3b5f8f;
+  }
+  :root[data-sky="sunset"]:not([data-theme="light"]) {
+    --sky-3: oklch(30% 0.08 335);
+    --sky-4: oklch(47% 0.12 45);
+    --sea-0: #5b4a6e;
+  }
+}
+
+:root[data-theme="dark"][data-sky="dawn"] {
+  --sky-3: oklch(30% 0.08 320);
+  --sky-4: oklch(46% 0.11 15);
+  --sea-0: #3b5f8f;
+}
+
+:root[data-theme="dark"][data-sky="sunset"] {
+  --sky-3: oklch(30% 0.08 335);
+  --sky-4: oklch(47% 0.12 45);
+  --sea-0: #5b4a6e;
 }
 
 /* ---------- Skins ---------- */
@@ -741,9 +845,9 @@ img, svg { max-width: 100%; }
 
 .sun {
   position: absolute;
-  top: clamp(70px, 9vw, 110px);
-  right: 11%;
-  width: clamp(70px, 9vw, 120px);
+  top: var(--sun-top);
+  right: var(--sun-right);
+  width: var(--sun-size);
   aspect-ratio: 1;
   border-radius: 50%;
   background: radial-gradient(circle, var(--sun) 0 34%, var(--sun-glow) 52%, transparent 70%);
@@ -1483,7 +1587,7 @@ img, svg { max-width: 100%; }
   --knob-h: 18px;
   display: grid;
   grid-template-columns: auto repeat(5, minmax(0, 1fr));
-  align-items: end;
+  align-items: start;
   gap: 6px;
   padding: 18px 16px 14px 12px;
   border-radius: var(--radius-m);
@@ -1496,7 +1600,6 @@ img, svg { max-width: 100%; }
   flex-direction: column;
   justify-content: space-between;
   height: var(--track-h);
-  margin-bottom: 1.75rem;
   font: 400 0.95rem/1 var(--font-lcd);
   color: var(--ink-soft);
   white-space: nowrap;
@@ -1511,6 +1614,13 @@ img, svg { max-width: 100%; }
   font-weight: 600;
   color: var(--ink-soft);
   white-space: nowrap;
+}
+
+.band .db {
+  margin-top: -6px;
+  font: 400 1rem/1 var(--font-lcd);
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
 }
 
 .track {
@@ -2031,6 +2141,141 @@ img, svg { max-width: 100%; }
   font-weight: 500;
 }
 
+/* ---------- Live sky chip ---------- */
+.sky-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-block-size: 42px;
+  padding: 5px 14px 5px 5px;
+  box-sizing: border-box;
+  border-radius: var(--pill);
+  border: 1px solid var(--glass-edge);
+  background: linear-gradient(180deg, var(--glass-hi), var(--glass-lo));
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  box-shadow: inset 0 1px 0 var(--gloss), 0 8px 18px -12px var(--shadow);
+  color: var(--ink);
+  font: 400 1.125rem/1 var(--font-lcd);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: translate 0.2s ease;
+}
+
+.sky-chip:hover { translate: 0 -1px; }
+
+.sky-chip-icon {
+  width: 30px;
+  height: 30px;
+  flex: none;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 62% 40%, var(--sun) 0 16%, var(--sun-glow) 28%, transparent 46%),
+    linear-gradient(180deg, var(--sky-1), var(--sky-3) 68%, var(--sea-0) 68%);
+  box-shadow: inset 0 0 0 1px var(--glass-edge), inset 0 2px 4px var(--shadow-soft);
+}
+
+.sky-chip-text { padding-top: 2px; }
+
+.sky-chip-cycle {
+  font: 600 1rem/1 var(--font-body);
+  opacity: 0.7;
+}
+
+/* ---------- MSN-style toasts ---------- */
+.toasts {
+  position: fixed;
+  right: 16px;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 16px);
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: min(320px, calc(100vw - 32px));
+  pointer-events: none;
+}
+
+.toast {
+  pointer-events: auto;
+  overflow: clip;
+  border-radius: 16px;
+  opacity: 0;
+  translate: 0 24px;
+  transition: opacity 0.3s ease, translate 0.45s cubic-bezier(0.2, 1.3, 0.4, 1);
+}
+
+.toast.is-in { opacity: 1; translate: 0 0; }
+.toast.is-out { opacity: 0; translate: 0 12px; }
+
+.toast-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 5px 5px 12px;
+  background: linear-gradient(180deg, var(--titlebar-hi), var(--titlebar-lo));
+  border-bottom: 1px solid var(--glass-edge);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.toast-close {
+  display: grid;
+  place-items: center;
+  margin-inline-start: auto;
+  min-inline-size: 32px;
+  min-block-size: 26px;
+  padding: 0;
+  border-radius: 7px;
+  border: 1px solid var(--glass-edge);
+  background: linear-gradient(180deg, var(--glass-hi) 0 50%, var(--glass-lo) 50% 100%);
+  color: var(--ink);
+  font: 600 1.1rem/1 var(--font-body);
+  cursor: pointer;
+}
+
+.toast-close:hover {
+  background: linear-gradient(180deg, var(--close-hi) 0 50%, var(--close) 50% 100%);
+  color: var(--on-accent);
+}
+
+.toast-body {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px 14px;
+}
+
+.toast-avatar {
+  --th: 210;
+  width: 48px;
+  height: 48px;
+  flex: none;
+  border-radius: 11px;
+  background:
+    radial-gradient(circle at 70% 30%, var(--sun) 0 11%, transparent 13%),
+    linear-gradient(180deg, oklch(80% 0.11 var(--th)) 0 56%, oklch(64% 0.16 calc(var(--th) - 60)) 56% 100%);
+  box-shadow: inset 0 0 0 2px var(--gloss-soft), 0 0 0 1px var(--glass-edge), 0 4px 10px -4px var(--shadow);
+}
+
+.toast-text {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.toast-title {
+  font-weight: 700;
+  font-size: 0.9375rem;
+  line-height: 1.3;
+}
+
+.toast-msg {
+  color: var(--ink-soft);
+  font-size: 0.9375rem;
+  line-height: 1.35;
+}
+
 /* =====================================================================
    Responsive
    ===================================================================== */
@@ -2103,6 +2348,15 @@ img, svg { max-width: 100%; }
    ===================================================================== */
 @media (prefers-reduced-motion: no-preference) {
   html { scroll-behavior: smooth; }
+
+  :root {
+    transition:
+      --sky-1 1.4s ease, --sky-2 1.4s ease, --sky-3 1.4s ease, --sky-4 1.4s ease,
+      --sea-0 1.4s ease, --sun 1.4s ease, --sun-glow 1.4s ease, --cloud 1.4s ease;
+  }
+  .sun { transition: top 1.4s ease, right 1.4s ease, width 1.4s ease; }
+  .stars,
+  .flare { transition: opacity 1.4s ease; }
 
   .chrome { animation: shimmer 10s ease-in-out infinite alternate; }
 
@@ -2188,6 +2442,20 @@ img, svg { max-width: 100%; }
 @keyframes bob { 50% { transform: translateY(-7px); } }
 @keyframes rise {
   from { opacity: 0.25; translate: 0 36px; scale: 0.97; }
+}
+
+/* Bars follow the real audio while it plays */
+.audio-live .lcd-viz i,
+.audio-live .viz-bars i {
+  --h: 100%;
+  animation: none;
+  transition: scale 0.08s linear;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toast,
+  .toast.is-in,
+  .toast.is-out { translate: none; }
 }
 
 @media (forced-colors: active) {
