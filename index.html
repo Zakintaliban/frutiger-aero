@@ -1,0 +1,393 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="light dark">
+  <script>
+    {
+      let theme = null;
+      try { theme = localStorage.getItem("aw-theme"); } catch (e) {}
+      if (theme === "light" || theme === "dark") {
+        document.documentElement.dataset.theme = theme;
+        document.querySelector('meta[name="color-scheme"]').content = theme;
+      }
+    }
+  </script>
+  <title>AeroWave Player</title>
+  <meta name="description" content="AeroWave: a Y2K × Frutiger Aero × glassmorphism concept for a music player that floats.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hind:wght@400;500;600;700&family=Unbounded:wght@600;700;800&family=VT323&display=swap">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+  <!-- Shared SVG symbols -->
+  <svg class="sprite" aria-hidden="true" focusable="false">
+    <symbol id="i-sparkle" viewBox="0 0 24 24"><path d="M12 0C12.9 7.4 16.6 11.1 24 12 16.6 12.9 12.9 16.6 12 24 11.1 16.6 7.4 12.9 0 12 7.4 11.1 11.1 7.4 12 0Z"/></symbol>
+    <symbol id="i-wave" viewBox="0 0 32 32"><path d="M3 18c3.5 0 3.5-6 7-6s3.5 9 7 9 3.5-12 7-12 3.5 6 5 6" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-prev" viewBox="0 0 24 24"><path d="M6 5h2.5v14H6zM20 5v14L9.5 12z"/></symbol>
+    <symbol id="i-next" viewBox="0 0 24 24"><path d="M15.5 5H18v14h-2.5zM4 5l10.5 7L4 19z"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 4.5v15l12-7.5z"/></symbol>
+    <symbol id="i-pause" viewBox="0 0 24 24"><path d="M6.5 4.5h4v15h-4zM13.5 4.5h4v15h-4z"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M4 12.5l5 5L20 6.5" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><path d="M12 1.5v3M12 19.5v3M1.5 12h3M19.5 12h3M4.6 4.6l2.1 2.1M17.3 17.3l2.1 2.1M4.6 19.4l2.1-2.1M17.3 6.7l2.1-2.1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20.5 14.6A8.5 8.5 0 0 1 9.4 3.5a8.5 8.5 0 1 0 11.1 11.1Z"/></symbol>
+    <symbol id="i-eq" viewBox="0 0 24 24"><path d="M5 20V10M5 6V4M12 20v-4M12 12V4M19 20v-7M19 9V4" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><circle cx="5" cy="8" r="2.2"/><circle cx="12" cy="14" r="2.2"/><circle cx="19" cy="11" r="2.2"/></symbol>
+    <symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 2.5C8.5 7.5 5.5 10.8 5.5 14.5a6.5 6.5 0 0 0 13 0c0-3.7-3-7-6.5-12Z"/></symbol>
+    <symbol id="i-cloud" viewBox="0 0 24 24"><path d="M7 19a5 5 0 0 1-.6-10A6.5 6.5 0 0 1 18.8 9.6 4.8 4.8 0 0 1 18 19Z"/></symbol>
+    <symbol id="i-aurora" viewBox="0 0 24 24"><path d="M2 17c4-9 8-9 10-4s6 5 10-4" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M2 21c4-6 8-6 10-3s6 3 10-3" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" opacity=".6"/></symbol>
+    <symbol id="i-bubbles" viewBox="0 0 24 24"><circle cx="8.5" cy="14" r="5.5" fill="none" stroke="currentColor" stroke-width="2.2"/><circle cx="17" cy="7" r="3.5" fill="none" stroke="currentColor" stroke-width="2.2"/><circle cx="18.5" cy="17.5" r="2" /></symbol>
+  </svg>
+
+  <div class="site">
+    <canvas class="bubbles" id="bubbles" aria-hidden="true"></canvas>
+
+    <header class="nav-wrap">
+      <nav class="nav glass" aria-label="Main">
+        <a class="brand" href="#top">
+          <span class="brand-orb" aria-hidden="true"><svg><use href="#i-wave"/></svg></span>
+          <span class="brand-name">AeroWave</span>
+        </a>
+        <ul class="nav-links">
+          <li><a href="#player">Player</a></li>
+          <li><a href="#features">Features</a></li>
+          <li><a href="#plans">Plans</a></li>
+        </ul>
+        <div class="nav-actions">
+          <button class="theme-toggle" id="theme-toggle" type="button" aria-pressed="false">
+            <span class="sr-only">Night mode</span>
+            <span class="toggle-track" aria-hidden="true">
+              <svg class="toggle-icon toggle-sun"><use href="#i-sun"/></svg>
+              <svg class="toggle-icon toggle-moon"><use href="#i-moon"/></svg>
+              <span class="toggle-knob"></span>
+            </span>
+          </button>
+          <a class="btn-gloss btn-sm" href="#plans">Download</a>
+        </div>
+      </nav>
+    </header>
+
+    <main>
+      <!-- ============ HERO: above the waterline ============ -->
+      <section class="hero" id="top">
+        <div class="hero-bg" aria-hidden="true">
+          <div class="stars"></div>
+          <div class="sun"></div>
+          <div class="flare">
+            <i></i><i></i><i></i><i></i>
+          </div>
+          <div class="ribbon ribbon-1"></div>
+          <div class="ribbon ribbon-2"></div>
+          <div class="ribbon ribbon-3"></div>
+          <div class="cloud cloud-1"></div>
+          <div class="cloud cloud-2"></div>
+          <div class="cloud cloud-3"></div>
+          <svg class="horizon" viewBox="0 0 1440 240" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="g-grass" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" style="stop-color: var(--grass-hi)"/>
+                <stop offset=".45" style="stop-color: var(--grass)"/>
+                <stop offset="1" style="stop-color: var(--grass-deep)"/>
+              </linearGradient>
+              <linearGradient id="g-grass-back" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" style="stop-color: var(--grass-hi); stop-opacity: .75"/>
+                <stop offset="1" style="stop-color: var(--grass)"/>
+              </linearGradient>
+              <linearGradient id="g-water" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" style="stop-color: var(--sea-0)"/>
+                <stop offset="1" style="stop-color: var(--sea-1)"/>
+              </linearGradient>
+            </defs>
+            <path fill="url(#g-grass-back)" d="M0 160C190 78 400 66 600 126c70 21 130 40 190 52V240H0Z"/>
+            <path fill="url(#g-grass)" d="M0 190C150 118 320 104 500 160c50 15 95 28 140 36V240H0Z"/>
+            <path class="hill-shine" d="M40 172C170 116 320 108 470 152" />
+            <path fill="url(#g-grass)" d="M1030 196c110-70 250-84 410-50V240H1030Z"/>
+            <path class="hill-shine" d="M1090 176c100-42 210-52 330-30" />
+            <path fill="url(#g-water)" d="M0 206c240-14 480 12 720-2s480-16 720 0V240H0Z"/>
+            <path class="water-shine" d="M0 206c240-14 480 12 720-2s480-16 720 0" />
+          </svg>
+        </div>
+
+        <div class="wrap hero-grid">
+          <div class="hero-copy">
+            <p class="hero-eyebrow"><span class="tag-gloss">v2.0</span> Lossless streaming is here</p>
+            <h1 class="hero-title">Music that <span class="chrome">floats.</span></h1>
+            <p class="lede">AeroWave is a music player for anyone who misses the sky-blue desktop. Stream lossless, tune a five-band EQ, and swap skins like it's 2007.</p>
+            <div class="cta-row">
+              <a class="btn-gloss" href="#plans">Download free</a>
+              <a class="btn-glass" href="#features">See features</a>
+            </div>
+            <ul class="hero-stats">
+              <li><b>50M</b><span>tracks</span></li>
+              <li><b>24/96</b><span>lossless</span></li>
+              <li><b>0</b><span>ads, ever</span></li>
+            </ul>
+          </div>
+
+          <div class="hero-stage" id="player">
+            <span class="marble" aria-hidden="true"></span>
+            <span class="chrome-ball" aria-hidden="true"></span>
+            <svg class="sparkle sp-1" aria-hidden="true"><use href="#i-sparkle"/></svg>
+            <svg class="sparkle sp-2" aria-hidden="true"><use href="#i-sparkle"/></svg>
+            <svg class="sparkle sp-3" aria-hidden="true"><use href="#i-sparkle"/></svg>
+
+            <article class="player glass" aria-label="AeroWave player preview">
+              <header class="player-bar">
+                <span class="player-mini-orb" aria-hidden="true"></span>
+                <span class="player-name">AeroWave</span>
+                <span class="win-btns" aria-hidden="true"><i></i><i></i><i class="win-close"></i></span>
+              </header>
+
+              <div class="player-main">
+                <div class="disc-wrap" aria-hidden="true">
+                  <div class="disc"></div>
+                  <div class="disc-shine"></div>
+                </div>
+
+                <div class="lcd" role="group" aria-label="Now playing">
+                  <div class="lcd-row">
+                    <span class="lcd-tag" id="lcd-state">PAUSED</span>
+                    <span id="track-format">FLAC 24/96</span>
+                  </div>
+                  <div class="marquee">
+                    <div class="marquee-track">
+                      <span class="marquee-item" id="track-title">Glass Lagoon · Sora Lake</span>
+                      <span class="marquee-item" aria-hidden="true" id="track-title-dup">Glass Lagoon · Sora Lake</span>
+                    </div>
+                  </div>
+                  <div class="lcd-viz" aria-hidden="true">
+                    <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+                  </div>
+                  <div class="lcd-row lcd-time">
+                    <span id="time-now">1:24</span>
+                    <span id="track-count">TRK 01/04</span>
+                    <span id="time-total">3:47</span>
+                  </div>
+                </div>
+              </div>
+
+              <label class="sr-only" for="seek">Seek</label>
+              <input class="seek" id="seek" type="range" min="0" max="227" value="84" step="1">
+
+              <div class="controls">
+                <button class="ctrl" id="prev" type="button" aria-label="Previous track"><svg><use href="#i-prev"/></svg></button>
+                <button class="ctrl ctrl-play" id="play" type="button" aria-label="Play">
+                  <svg class="icon-play"><use href="#i-play"/></svg>
+                  <svg class="icon-pause"><use href="#i-pause"/></svg>
+                </button>
+                <button class="ctrl" id="next" type="button" aria-label="Next track"><svg><use href="#i-next"/></svg></button>
+              </div>
+
+              <fieldset class="skins">
+                <legend>Skin</legend>
+                <div class="skin-row">
+                  <label class="skin skin-aqua"><input type="radio" name="skin" id="skin-aqua" value="aqua" checked><span class="skin-dot" aria-hidden="true"></span><span class="skin-name">Aqua</span></label>
+                  <label class="skin skin-meadow"><input type="radio" name="skin" id="skin-meadow" value="meadow"><span class="skin-dot" aria-hidden="true"></span><span class="skin-name">Meadow</span></label>
+                  <label class="skin skin-aurora"><input type="radio" name="skin" id="skin-aurora" value="aurora"><span class="skin-dot" aria-hidden="true"></span><span class="skin-name">Aurora</span></label>
+                  <label class="skin skin-bubblegum"><input type="radio" name="skin" id="skin-bubblegum" value="bubblegum"><span class="skin-dot" aria-hidden="true"></span><span class="skin-name">Bubblegum</span></label>
+                </div>
+              </fieldset>
+
+              <span class="droplet d-1" aria-hidden="true"></span>
+              <span class="droplet d-2" aria-hidden="true"></span>
+              <span class="droplet d-3" aria-hidden="true"></span>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ BELOW THE WATERLINE ============ -->
+      <div class="ocean">
+        <div class="ocean-bg" aria-hidden="true">
+          <div class="rays"></div>
+          <div class="caustics"></div>
+        </div>
+
+        <section class="wrap section" id="features" aria-labelledby="features-title">
+          <div class="section-head">
+            <p class="eyebrow">Features</p>
+            <h2 id="features-title">A player with a little sky in it.</h2>
+            <p>Five tools, each one frosted glass, all tuned for listening.</p>
+          </div>
+
+          <div class="bento">
+            <!-- EQ -->
+            <article class="card glass card-eq">
+              <div class="card-head">
+                <span class="orb-icon" aria-hidden="true"><svg><use href="#i-eq"/></svg></span>
+                <div>
+                  <h3>Five-band graphic EQ</h3>
+                  <p>Pick a preset and watch the sliders move. Aqua+ saves your own curves.</p>
+                </div>
+              </div>
+              <div class="eq-wrap">
+                <div class="eq" aria-hidden="true">
+                  <div class="eq-scale"><span>+12 dB</span><span>0</span><span>−12 dB</span></div>
+                  <div class="band" style="--l: var(--l1)"><div class="track"><div class="fill"></div><div class="knob"></div></div><span>60 Hz</span></div>
+                  <div class="band" style="--l: var(--l2)"><div class="track"><div class="fill"></div><div class="knob"></div></div><span>230 Hz</span></div>
+                  <div class="band" style="--l: var(--l3)"><div class="track"><div class="fill"></div><div class="knob"></div></div><span>910 Hz</span></div>
+                  <div class="band" style="--l: var(--l4)"><div class="track"><div class="fill"></div><div class="knob"></div></div><span>3.6 kHz</span></div>
+                  <div class="band" style="--l: var(--l5)"><div class="track"><div class="fill"></div><div class="knob"></div></div><span>14 kHz</span></div>
+                </div>
+                <fieldset class="presets">
+                  <legend>EQ preset</legend>
+                  <label class="chip"><input type="radio" name="eq" id="eq-flat" value="flat"><span>Flat</span></label>
+                  <label class="chip"><input type="radio" name="eq" id="eq-bass" value="bass" checked><span>Bass boost</span></label>
+                  <label class="chip"><input type="radio" name="eq" id="eq-vocal" value="vocal"><span>Vocal</span></label>
+                  <label class="chip"><input type="radio" name="eq" id="eq-sparkle" value="sparkle"><span>Sparkle</span></label>
+                </fieldset>
+              </div>
+            </article>
+
+            <!-- Lossless -->
+            <article class="card glass card-lossless">
+              <div class="card-head">
+                <span class="orb-icon" aria-hidden="true"><svg><use href="#i-drop"/></svg></span>
+                <div>
+                  <h3>Lossless, up to 24/96</h3>
+                  <p>Studio-quality FLAC. Your 128 kbps rips from 2006 can finally retire.</p>
+                </div>
+              </div>
+              <div class="lcd lcd-big">
+                <span class="lcd-num">24<small>bit</small>/96<small>kHz</small></span>
+              </div>
+              <dl class="bitrates" aria-label="Bitrate comparison, drawn to scale">
+                <div class="br-row" style="--w: 2.78%"><dt>MP3, 2006</dt><dd><span class="br-bar"></span><span class="br-val">128 kbps</span></dd></div>
+                <div class="br-row" style="--w: 6.94%"><dt>MP3 high</dt><dd><span class="br-bar"></span><span class="br-val">320 kbps</span></dd></div>
+                <div class="br-row br-hero" style="--w: 100%"><dt>24/96 PCM</dt><dd><span class="br-bar"></span><span class="br-val">4,608 kbps</span></dd></div>
+              </dl>
+            </article>
+
+            <!-- Sync -->
+            <article class="card glass card-sync">
+              <div class="card-head">
+                <span class="orb-icon" aria-hidden="true"><svg><use href="#i-cloud"/></svg></span>
+                <div>
+                  <h3>Sync and go</h3>
+                  <p>Pin albums offline and sync them to your phone over Wi-Fi.</p>
+                </div>
+              </div>
+              <div class="capacity" role="img" aria-label="Phone storage, 64 GB: Music 38.2 GB, Podcasts 4.1 GB, Photos 2.0 GB, Free 19.7 GB">
+                <span class="seg seg-music" style="--w: 59.7%"></span>
+                <span class="seg seg-pod" style="--w: 6.4%"></span>
+                <span class="seg seg-photo" style="--w: 3.1%"></span>
+                <span class="seg seg-free" style="--w: 30.8%"></span>
+              </div>
+              <ul class="legend">
+                <li><i class="dot seg-music"></i>Music <b>38.2 GB</b></li>
+                <li><i class="dot seg-pod"></i>Podcasts <b>4.1 GB</b></li>
+                <li><i class="dot seg-photo"></i>Photos <b>2.0 GB</b></li>
+                <li><i class="dot seg-free"></i>Free <b>19.7 GB</b></li>
+              </ul>
+            </article>
+
+            <!-- Visualizer -->
+            <article class="card glass card-viz">
+              <div class="card-head">
+                <span class="orb-icon" aria-hidden="true"><svg><use href="#i-aurora"/></svg></span>
+                <div>
+                  <h3>Aurora visualizer</h3>
+                  <p>Six presets, from Bubbles to Deep Sea. Press play up top to set it moving.</p>
+                </div>
+              </div>
+              <div class="viz-stage" aria-hidden="true">
+                <span class="viz-glow g-1"></span>
+                <span class="viz-glow g-2"></span>
+                <span class="viz-glow g-3"></span>
+                <div class="viz-bars">
+                  <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+                </div>
+              </div>
+            </article>
+
+            <!-- Moods -->
+            <article class="card glass card-moods">
+              <div class="card-head">
+                <span class="orb-icon" aria-hidden="true"><svg><use href="#i-bubbles"/></svg></span>
+                <div>
+                  <h3>Mood bubbles</h3>
+                  <p>Mixes sorted by tempo, refreshed every morning.</p>
+                </div>
+              </div>
+              <ul class="moods">
+                <li class="mood m-1"><b>Rainforest</b><span>92 BPM</span></li>
+                <li class="mood m-2"><b>Deep Sea</b><span>70 BPM</span></li>
+                <li class="mood m-3"><b>Morning Dew</b><span>104 BPM</span></li>
+                <li class="mood m-4"><b>Night Drive</b><span>118 BPM</span></li>
+              </ul>
+            </article>
+          </div>
+        </section>
+
+        <section class="wrap section section-split" id="plans" aria-labelledby="plans-title">
+          <div class="section-head">
+            <p class="eyebrow">Plans</p>
+            <h2 id="plans-title">Free to float. Upgrade for lossless.</h2>
+            <p>Both plans are ad-free. Aqua+ adds hi-res audio, every skin, and unlimited offline listening.</p>
+          </div>
+
+          <div class="plans">
+            <article class="plan glass">
+              <h3>Breeze</h3>
+              <p class="plan-for">For everyday listening.</p>
+              <p class="price"><span class="price-num">$0</span><span class="price-per">free forever</span></p>
+              <ul class="ticks">
+                <li><svg aria-hidden="true"><use href="#i-check"/></svg>320 kbps streaming</li>
+                <li><svg aria-hidden="true"><use href="#i-check"/></svg>3 offline playlists</li>
+                <li><svg aria-hidden="true"><use href="#i-check"/></svg>4 classic skins</li>
+                <li><svg aria-hidden="true"><use href="#i-check"/></svg>Bubbles visualizer</li>
+              </ul>
+              <a class="btn-glass" href="#top">Download free</a>
+            </article>
+
+            <article class="plan plan-plus glass">
+              <span class="plan-badge tag-gloss">Best value</span>
+              <h3>Aqua+</h3>
+              <p class="plan-for">For people who hear the difference.</p>
+              <p class="price"><span class="price-num">$3.99</span><span class="price-per">per month</span></p>
+              <ul class="ticks">
+                <li><svg aria-hidden="true"><use href="#i-check"/></svg>Lossless up to 24-bit / 96 kHz</li>
+                <li><svg aria-hidden="true"><use href="#i-check"/></svg>Unlimited offline downloads</li>
+                <li><svg aria-hidden="true"><use href="#i-check"/></svg>40 skins and the skin editor</li>
+                <li><svg aria-hidden="true"><use href="#i-check"/></svg>All six visualizers</li>
+                <li><svg aria-hidden="true"><use href="#i-check"/></svg>Custom EQ presets</li>
+              </ul>
+              <a class="btn-gloss" href="#top">Start 30-day trial</a>
+            </article>
+          </div>
+
+          <p class="platforms">Runs on <span>Windows</span><span>macOS</span><span>iOS</span><span>Android</span> and syncs between all four.</p>
+        </section>
+
+        <footer class="wrap footer">
+          <div class="footer-panel glass">
+            <div class="footer-brand">
+              <a class="brand" href="#top">
+                <span class="brand-orb" aria-hidden="true"><svg><use href="#i-wave"/></svg></span>
+                <span class="brand-name">AeroWave</span>
+              </a>
+              <p>Music that floats.</p>
+            </div>
+
+            <ul class="badges" aria-label="Web badges">
+              <li class="badge88 b-aqua"><span class="b-ico" aria-hidden="true">✦</span><span>AQUA<br>POWERED</span></li>
+              <li class="badge88 b-chrome"><span class="b-ico" aria-hidden="true">▣</span><span>BEST @<br>1024×768</span></li>
+              <li class="badge88 b-lime"><span class="b-ico" aria-hidden="true">●</span><span>NO ADS<br>4 EVER</span></li>
+              <li class="badge88 b-pink"><span class="b-ico" aria-hidden="true">♥</span><span>BUBBLE<br>SAFE</span></li>
+            </ul>
+
+            <div class="counter">
+              <span class="counter-label">Visitors since 2007</span>
+              <span class="counter-digits lcd"><span>0</span><span>0</span><span>4</span><span>2</span><span>1</span><span>7</span><span>0</span></span>
+            </div>
+          </div>
+          <p class="fineprint">AeroWave is a design concept. The app, artists and tracks on this page are fictional. A Y2K × Frutiger Aero × glassmorphism study, 2026.</p>
+        </footer>
+      </div>
+    </main>
+  </div>
+
+  <script src="assets/js/main.js"></script>
+</body>
+</html>
